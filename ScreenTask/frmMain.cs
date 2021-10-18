@@ -140,6 +140,13 @@ namespace ScreenTask
             {
                 var ctx = await serv.GetContextAsync();
                 //Screenshot();
+                if(ctx.Request.HttpMethod == "POST")
+                {
+                    string res = new StreamReader(ctx.Request.InputStream).ReadToEnd();
+                    Log(res);
+                    WinClick(res);
+                }
+
                 var resPath = ctx.Request.Url.LocalPath;
                 if (resPath == "/") // Route The Root Dir to the Index Page
                     resPath += "index.html";
@@ -539,5 +546,33 @@ namespace ScreenTask
             this.Focus();
         }
 
+        private bool WinClick(string Req)
+        {
+            int StartXp = Req.IndexOf("xp=") + 3;
+            int StartYp = Req.IndexOf("yp=") + 3;
+            if(StartXp < 3 || StartYp < 3 || StartXp >= Req.Length || StartYp >= Req.Length)
+            {
+                Log("Click coordinates parse error!");
+                return false;
+            }
+            int EndXp = Req.IndexOf("&", StartXp);
+            int EndYp = Req.IndexOf("&", StartYp);
+
+            int LenXp = EndXp > StartXp ? EndXp - StartXp : Req.Length - 1 - StartXp;
+            int LenYp = EndYp > StartYp ? EndYp - StartYp : Req.Length - 1 - StartYp;
+
+            if(LenXp <= 0 || LenYp <= 0)
+            {
+                Log("Click coordinates parse error!");
+                return false;
+            }
+
+            float Xp = float.Parse(Req.Substring(StartXp, LenXp).Replace('.',','));
+            float Yp = float.Parse(Req.Substring(StartYp, LenYp).Replace('.', ','));
+
+            //window click code
+
+            return true;
+        }
     }
 }

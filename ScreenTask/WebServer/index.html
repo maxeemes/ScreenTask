@@ -244,6 +244,9 @@
             requestFullScreen(viewer);
         };
 
+        var xhr = new XMLHttpRequest();
+        
+
         document.getElementById('Viewer').onclick = function clickEvent(e) {
             // e = Mouse click event.
             var rect = e.target.getBoundingClientRect();
@@ -255,6 +258,8 @@
             var yp = (e.clientY - rect.top) / rect.height;
             console.log("Wp? : " + xp + " ; Hp? : " + yp + ".");
 
+            xhr.open("POST", '/', true);
+            xhr.send("xp=" + xp + "&yp=" + yp);
         }
 
 
