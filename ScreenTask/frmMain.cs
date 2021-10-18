@@ -62,7 +62,7 @@ namespace ScreenTask
                     serv.Close();
                 }
                 Log("Server Stoped.");
-                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Server Stoped.", ToolTipIcon.Info);
+                appNotify.ShowBalloonTip(1000, "ScreenTask", "Server Stoped.", ToolTipIcon.Info);
 
                 return;
             }
@@ -75,7 +75,7 @@ namespace ScreenTask
                 isWorking = true;
                 Log("Starting Server, Please Wait...");
                 await AddFirewallRule((int)numPort.Value);
-                _ = Task.Factory.StartNew(() => CaptureScreenEvery((int)numShotEvery.Value), TaskCreationOptions.LongRunning);
+                Task Tas = Task.Factory.StartNew(() => CaptureScreenEvery((int)numShotEvery.Value), TaskCreationOptions.LongRunning);
                 btnStartServer.Tag = "stop";
                 btnStartServer.Text = "Stop Server";
                 await StartServer();
@@ -132,7 +132,7 @@ namespace ScreenTask
             serv.Prefixes.Add(url + "/");
             serv.Start();
             Log("Server Started Successfuly!");
-            appNotify.ShowBalloonTip(1_000, "ScreenTask", $"Server Started Successfuly!\r\n{url}", ToolTipIcon.Info);
+            appNotify.ShowBalloonTip(1000, "ScreenTask", $"Server Started Successfuly!\r\n{url}", ToolTipIcon.Info);
 
             Log("Network URL : " + url);
             Log("Localhost URL : " + "http://localhost:" + numPort.Value.ToString() + "/");
@@ -449,6 +449,7 @@ namespace ScreenTask
             {
                 var wc = new WebClient();
                 wc.Headers.Add(HttpRequestHeader.UserAgent, "ScreenTask");
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
                 var latestGithubReleaseText = wc.DownloadString("https://api.github.com/repos/EslaMx7/ScreenTask/releases/latest");
                 var regex = Regex.Match(latestGithubReleaseText, @"\""tag_name\"":\""(.{2,5})\"",", RegexOptions.Multiline);
                 if (regex.Success && !string.IsNullOrEmpty(regex.Value) && regex.Groups.Count > 1)
@@ -527,7 +528,7 @@ namespace ScreenTask
             {
                 this.ShowInTaskbar = false;
                 appNotify.Visible = true;
-                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Running in the background", ToolTipIcon.Info);
+                appNotify.ShowBalloonTip(1000, "ScreenTask", "Running in the background", ToolTipIcon.Info);
             }
         }
 
