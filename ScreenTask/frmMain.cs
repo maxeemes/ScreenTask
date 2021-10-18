@@ -21,15 +21,20 @@ using System.Xml.Serialization;
 //using Keyboard.PInvoke.SendInput.Native;
 
 
+
+
 namespace ScreenTask
 {
     public partial class frmMain : Form
     {
         //[DllImport("Winuser.h", EntryPoint = "LPINPUT")]
         //    LPINPUT
+
+
         //[DllImport("Winuser.h", CharSet = CharSet.Unicode)]
-        //    public static extern int SendInput(uint cInputs, LPINPUT wMsg, uint wParam, uint lParam);
-        //private bool isWorking;
+        //    public static extern int SendInput(uint cInputs, LPINPUT wMsg, int lParam);
+
+        private bool isWorking;
 
         private object locker = new object();
         private ReaderWriterLock rwl = new ReaderWriterLock();
@@ -578,11 +583,12 @@ namespace ScreenTask
             float Yp = float.Parse(Req.Substring(StartYp, LenYp).Replace('.', ','));
 
             //window click code
-            INPUT inputs[1] = { };
-            ZeroMemory(inputs, sizeof(inputs));
+            //INPUT inputs[1] = { };
+            //ZeroMemory(inputs, sizeof(inputs));
+            //
+            //inputs[0].type = INPUT_KEYBOARD;
 
-            inputs[0].type = INPUT_KEYBOARD;
-
+            KBEmulator.SendKeyboard('x');
 
             return true;
         }
