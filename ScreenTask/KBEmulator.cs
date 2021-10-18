@@ -70,8 +70,8 @@ namespace ScreenTask
         [StructLayout(LayoutKind.Sequential)]
         internal struct MOUSEINPUT
         {
-            internal int dx;
-            internal int dy;
+            internal long dx;
+            internal long dy;
             internal int mouseData;
             internal MOUSEEVENTF dwFlags;
             internal uint time;
@@ -108,11 +108,19 @@ namespace ScreenTask
 
             [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
             public static extern short VkKeyScan(char ch);
+
+            [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            public static extern int GetSystemMetrics(int nIndex);
         }
 
         internal static short VkKeyScan(char ch)
         {
             return unmanaged.VkKeyScan(ch);
+        }
+
+        internal static int GetSystemMetrics(int nIndex)
+        {
+            return unmanaged.GetSystemMetrics(nIndex);
         }
 
         internal static uint SendInput(uint cInputs, lpInput[] inputs, int cbSize)
@@ -169,5 +177,105 @@ namespace ScreenTask
 
             return;
         }
+
+        public static void SendMouseClick(long dx, long dy)
+        {
+            lpInput[] MouseInputs = new lpInput[1];
+            lpInput MouseClickInput = new lpInput();
+            // Generic Keyboard Event
+            MouseClickInput.type = InputType.INPUT_MOUSE;
+
+            MouseClickInput.Data.mi.dwFlags = MOUSEEVENTF.MOVE | MOUSEEVENTF.ABSOLUTE;
+            MouseClickInput.Data.mi.dx = dx * (65535 / GetSystemMetrics(0)); //x being coord in pixels
+            MouseClickInput.Data.mi.dy = dy * (65535 / GetSystemMetrics(1)); //y being coord in pixels
+            SendInput(1, MouseInputs, lpInput.Size);
+
+
+            //MouseClickInput.Data.mi.time = 0;
+            MouseClickInput.Data.mi.dwExtraInfo = UIntPtr.Zero;
+
+
+            MouseClickInput.Data.mi.dwFlags = MOUSEEVENTF.LEFTDOWN;
+            MouseInputs[0] = MouseClickInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+
+            
+            //MouseClickInput.Data.ki.wVk = VkKeyScan(ch);
+            //MouseClickInput.Data.ki.dwFlags = KEYEVENTF.KEYDOWN;
+            //KeyInputs[0] = MouseClickInput;
+            //SendInput(1, KeyInputs, lpInput.Size);
+            //
+            //// Release the key
+            MouseClickInput.Data.mi.dwFlags = MOUSEEVENTF.LEFTUP;
+            MouseInputs[0] = MouseClickInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+
+            return;
+        }
+
+
+        public static void ClickLeftMouseButton()
+        {
+            lpInput[] MouseInputs = new lpInput[1];
+
+            lpInput mouseDownInput = new lpInput();
+            mouseDownInput.type = InputType.INPUT_MOUSE;
+            mouseDownInput.Data.mi.dwFlags = MOUSEEVENTF.LEFTDOWN;
+            MouseInputs[0] = mouseDownInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+
+
+            lpInput mouseUpInput = new lpInput();
+            mouseUpInput.type = InputType.INPUT_MOUSE;
+            mouseUpInput.Data.mi.dwFlags = MOUSEEVENTF.LEFTUP;
+            MouseInputs[0] = mouseUpInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+        }
+        public static void ClickRightMouseButton()
+        {
+            lpInput[] MouseInputs = new lpInput[1];
+
+            lpInput mouseDownInput = new lpInput();
+            mouseDownInput.type = InputType.INPUT_MOUSE;
+            mouseDownInput.Data.mi.dwFlags = MOUSEEVENTF.RIGHTDOWN;
+            MouseInputs[0] = mouseDownInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+
+
+
+            lpInput mouseUpInput = new lpInput();
+            mouseUpInput.type = InputType.INPUT_MOUSE;
+            mouseUpInput.Data.mi.dwFlags = MOUSEEVENTF.RIGHTUP;
+            MouseInputs[0] = mouseUpInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+        }
+
+
+
+        public static void SetMousePosition(int x, int y, int width, int height)
+        {
+            lpInput[] MouseInputs = new lpInput[1];
+
+            lpInput mouseMoveInput = new lpInput();
+            mouseMoveInput.type = InputType.INPUT_MOUSE;
+
+
+
+            mouseMoveInput.Data.mi.dwFlags = MOUSEEVENTF.MOVE | MOUSEEVENTF.ABSOLUTE;
+
+
+
+            mouseMoveInput.Data.mi.dx = 65535 * x / width;
+            mouseMoveInput.Data.mi.dy = 65535 * y / height;
+
+
+
+            MouseInputs[0] = mouseMoveInput;
+            SendInput(1, MouseInputs, lpInput.Size);
+        }
+
+
+
+
     }
 }

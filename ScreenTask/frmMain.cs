@@ -570,8 +570,8 @@ namespace ScreenTask
             int EndXp = Req.IndexOf("&", StartXp);
             int EndYp = Req.IndexOf("&", StartYp);
 
-            int LenXp = EndXp > StartXp ? EndXp - StartXp : Req.Length - 1 - StartXp;
-            int LenYp = EndYp > StartYp ? EndYp - StartYp : Req.Length - 1 - StartYp;
+            int LenXp = EndXp > StartXp ? EndXp - StartXp : Req.Length - StartXp;
+            int LenYp = EndYp > StartYp ? EndYp - StartYp : Req.Length - StartYp;
 
             if(LenXp <= 0 || LenYp <= 0)
             {
@@ -582,13 +582,22 @@ namespace ScreenTask
             float Xp = float.Parse(Req.Substring(StartXp, LenXp).Replace('.',','));
             float Yp = float.Parse(Req.Substring(StartYp, LenYp).Replace('.', ','));
 
+
+
             //window click code
             //INPUT inputs[1] = { };
             //ZeroMemory(inputs, sizeof(inputs));
             //
             //inputs[0].type = INPUT_KEYBOARD;
 
-            KBEmulator.SendKeyboard('x');
+            //KBEmulator.SendKeyboard('x');
+
+            //KBEmulator.SendMouseClick(Convert.ToInt64(Xp * 1920.0), Convert.ToInt64(Yp * 1080.0));
+
+            KBEmulator.SetMousePosition(1000, 500, 1920, 1080);
+            KBEmulator.ClickLeftMouseButton();
+            KBEmulator.ClickRightMouseButton();
+
 
             return true;
         }
