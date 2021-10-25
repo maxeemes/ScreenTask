@@ -591,12 +591,15 @@ namespace ScreenTask
             //inputs[0].type = INPUT_KEYBOARD;
 
             //KBEmulator.SendKeyboard('x');
+            //InputSender.ClickKey(0x11); // W
+            //ushort KeyCode = InputSender.ConvertCharToVirtualKey('w');
+            //InputSender.ClickKey(KeyCode);
 
-            //KBEmulator.SendMouseClick(Convert.ToInt64(Xp * 1920.0), Convert.ToInt64(Yp * 1080.0));
 
-            KBEmulator.SetMousePosition(1000, 500, 1920, 1080);
-            KBEmulator.ClickLeftMouseButton();
-            KBEmulator.ClickRightMouseButton();
+            InputSender.SetCursorPosition((int)(Xp * 1920), (int)(Yp * 1080));
+            //KBEmulator.SetMousePosition(1000, 500, 1920, 1080);
+            //KBEmulator.ClickLeftMouseButton();
+            //KBEmulator.ClickRightMouseButton();
 
 
             return true;

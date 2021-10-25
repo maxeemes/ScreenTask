@@ -153,6 +153,7 @@ namespace ScreenTask
             return;
         }
 
+        /*
         public static void SendKeyboard(char ch)
         {
             lpInput[] KeyInputs = new lpInput[1];
@@ -176,7 +177,74 @@ namespace ScreenTask
             SendInput(1, KeyInputs, lpInput.Size);
 
             return;
+        }*/
+        public static void SendKeyboard(char ch)
+        {
+            lpInput[] KeyInputs = new lpInput[1];
+            lpInput KeyInput = new lpInput();
+            // Generic Keyboard Event
+            KeyInput.type = InputType.INPUT_KEYBOARD;
+            KeyInput.Data.ki.wScan = 0;
+            KeyInput.Data.ki.time = 10;
+            KeyInput.Data.ki.dwExtraInfo = UIntPtr.Zero;
+
+
+            // Push the correct key
+            KeyInput.Data.ki.wVk = VkKeyScan(ch);
+            KeyInput.Data.ki.dwFlags = KEYEVENTF.KEYDOWN;
+            KeyInput.Data.ki.time = 10;
+            KeyInputs[0] = KeyInput;
+            SendInput(1, KeyInputs, 2);
+
+            // Release the key
+            KeyInput.Data.ki.dwFlags = KEYEVENTF.KEYUP;
+            KeyInput.Data.ki.time = 0;
+            KeyInputs[0] = KeyInput;
+            SendInput(1, KeyInputs, 2);
+
+            return;
         }
+
+        // Attempt at overloading for multiple key presses
+        public static void SendKeyboard(char[] ch)
+        {
+            lpInput[] KeyInputs = new lpInput[ch.Length];
+
+            // Push the correct key
+            for (int i = 0; i < ch.Length; i++)
+            {
+                // Generate new memory address for KeyInput each time
+                lpInput KeyInput = new lpInput();
+                // Generic Keyboard Event
+                KeyInput.type = InputType.INPUT_KEYBOARD;
+                KeyInput.Data.ki.wScan = 0;
+                KeyInput.Data.ki.time = 0;
+                KeyInput.Data.ki.dwExtraInfo = UIntPtr.Zero;
+                KeyInput.Data.ki.wVk = VkKeyScan(ch[i]);
+                KeyInput.Data.ki.dwFlags = KEYEVENTF.KEYDOWN;
+                KeyInputs[i] = KeyInput;
+            }
+            SendInput(Convert.ToUInt32(ch.Length), KeyInputs, (lpInput.Size * ch.Length));
+
+            // Release the key
+            for (int i = 0; i < ch.Length; i++)
+            {
+                // Generate new memory address for KeyInput each time
+                lpInput KeyInput = new lpInput();
+                // Generic Keyboard Event
+                KeyInput.type = InputType.INPUT_KEYBOARD;
+                KeyInput.Data.ki.wScan = 0;
+                KeyInput.Data.ki.time = 0;
+                KeyInput.Data.ki.dwExtraInfo = UIntPtr.Zero;
+                KeyInput.Data.ki.wVk = VkKeyScan(ch[i]);
+                KeyInput.Data.ki.dwFlags = KEYEVENTF.KEYUP;
+                KeyInputs[i] = KeyInput;
+            }
+            SendInput(Convert.ToUInt32(ch.Length), KeyInputs, (lpInput.Size * ch.Length));
+
+            return;
+        }
+
 
         public static void SendMouseClick(long dx, long dy)
         {
