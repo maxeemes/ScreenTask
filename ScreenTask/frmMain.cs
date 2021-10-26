@@ -596,7 +596,9 @@ namespace ScreenTask
             //InputSender.ClickKey(KeyCode);
 
 
-            InputSender.SetCursorPosition((int)(Xp * 1920), (int)(Yp * 1080));
+            //InputSender.SetCursorPosition((int)(Xp * 1920), (int)(Yp * 1080));
+
+            InputSender.SendMouseClick(new InputSender.POINT { X = (int)(Xp * 65535), Y = (int)(Yp * 65535) });
             //KBEmulator.SetMousePosition(1000, 500, 1920, 1080);
             //KBEmulator.ClickLeftMouseButton();
             //KBEmulator.ClickRightMouseButton();

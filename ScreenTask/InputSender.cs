@@ -193,6 +193,39 @@ namespace ScreenTask
 
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
         }
+
+        public static void SendMouseClick(POINT point)
+        {
+            MouseInput[] mInputs = new MouseInput[]
+            {
+                new MouseInput
+                {
+                    dx = point.X,
+                    dy = point.Y,
+                    mouseData = 0,
+                    dwFlags = (uint)(MouseEventF.Move | MouseEventF.Absolute),
+                    time = 0
+                },
+                new MouseInput
+                {
+                    dx = point.X,
+                    dy = point.Y,
+                    mouseData = 0,
+                    dwFlags = (uint)(MouseEventF.Absolute | MouseEventF.LeftDown),
+                    time = 0
+                },
+                new MouseInput
+                {
+                    dx = point.X,
+                    dy = point.Y,
+                    mouseData = 0,
+                    dwFlags = (uint)(MouseEventF.Absolute | MouseEventF.LeftUp),
+                    time = 0
+                }
+            };
+            SendMouseInput(mInputs);
+
+        }
         #endregion
     }
 }
