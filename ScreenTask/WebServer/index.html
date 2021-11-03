@@ -134,11 +134,13 @@
 
         <hr />
         <!-- Preview -->
-        <div id="Viewer" class="imgPreview">
+        <div id="Viewer" tabindex="0" class="imgPreview">
             <img id="imgPrev" src="ScreenTask.jpg" class="img-responsive" alt="LIVE! Sever Screen Now!" />
             <br />
             <div class="well text-center">
-
+                <div class="d-grid gap-2">
+                    <input id="KeyIn" type="text" class="form-control" placeholder="Click here for input keys"/>
+                </div>
                 <div class="row">
                     
                     <div class="col-lg-4 col-md-4 col-sm-4">
@@ -247,7 +249,7 @@
         var xhr = new XMLHttpRequest();
         
 
-        document.getElementById('Viewer').onclick = function clickEvent(e) {
+        document.getElementById('imgPrev').onclick = function clickEvent(e) {
             // e = Mouse click event.
             var rect = e.target.getBoundingClientRect();
             var x = e.clientX - rect.left; //x position within the element.
@@ -259,9 +261,33 @@
             console.log("Wp? : " + xp + " ; Hp? : " + yp + ".");
 
             xhr.open("POST", '/', true);
+            xhr.setRequestHeader("InputType", "Click");
             xhr.send("xp=" + xp + "&yp=" + yp);
         }
 
+
+        Viewer.focus();
+        Viewer.onkeydown = Viewer.onkeyup = Viewer.onkeypress = KeySend;
+
+        function KeySend(e) {
+            let text = 'KeyEventType=' + e.type
+                + '&key=' + e.key
+                + (e.shiftKey ? '&shiftKey' : '')
+                + (e.ctrlKey ? '&ctrlKey' : '')
+                + (e.altKey ? '&altKey' : '')
+                + (e.metaKey ? '&metaKey' : '')
+                + (e.repeat ? '&repeat' : '');
+            console.log(text);
+            xhr.open("POST", '/', true);
+            xhr.setRequestHeader("InputType", "Key");
+            xhr.send(text);
+
+            KeyIn.value = '';
+        }
+
+        document.getElementById('Viewer').onkeydown = function keyDownEvent(e) {
+
+        }
 
     </script>
 

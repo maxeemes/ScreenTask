@@ -156,7 +156,17 @@ namespace ScreenTask
                 {
                     string res = new StreamReader(ctx.Request.InputStream).ReadToEnd();
                     Log(res);
-                    WinClick(res);
+                    switch(ctx.Request.Headers["InputType"])
+                    {
+                        case "Click":
+                            WinClick(res);
+                            break;
+                        case "Key":
+                            WinKey(res);
+                            break;
+                        default: break;
+                    }
+                    
                 }
 
                 var resPath = ctx.Request.Url.LocalPath;
@@ -260,6 +270,8 @@ namespace ScreenTask
             }
 
         }
+
+
         private async Task CaptureScreenEvery(int msec)
         {
             while (isWorking)
@@ -606,5 +618,40 @@ namespace ScreenTask
 
             return true;
         }
+
+        //TDOD: make protection against eternal key pressed
+        private void WinKey(string res)
+        {
+            var QueryParams = QueryParamsToString(res);
+            switch(QueryParams["KeyEventType"])
+            {
+                case "keypress":
+                    //...
+                    break;
+                case "keyup":
+                    //...
+                    break;
+                default: break;
+            }
+        }
+
+        private Dictionary<string, string> QueryParamsToString(string Query)
+        {
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            string[] querySegments = Query.Split('&');
+            foreach (string segment in querySegments)
+            {
+                string[] parts = segment.Split('=');
+                if (parts.Length > 0)
+                {
+                    string key = parts[0].Trim(new char[] { '?', ' ' });
+                    string val = parts[1].Trim();
+
+                    queryParameters.Add(key, val);
+                }
+            }
+            return queryParameters;
+        }
+
     }
 }
