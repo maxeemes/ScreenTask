@@ -91,7 +91,7 @@ namespace ScreenTask
         private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetMessageExtraInfo();
+        public static extern IntPtr GetMessageExtraInfo();
 
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);

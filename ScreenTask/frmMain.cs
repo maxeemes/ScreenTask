@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using static ScreenTask.InputSender;
 //using Keyboard.PInvoke.SendInput.Native;
 
 
@@ -152,11 +153,11 @@ namespace ScreenTask
             {
                 var ctx = await serv.GetContextAsync();
                 //Screenshot();
-                if(ctx.Request.HttpMethod == "POST")
+                if (ctx.Request.HttpMethod == "POST")
                 {
                     string res = new StreamReader(ctx.Request.InputStream).ReadToEnd();
                     Log(res);
-                    switch(ctx.Request.Headers["InputType"])
+                    switch (ctx.Request.Headers["InputType"])
                     {
                         case "Click":
                             WinClick(res);
@@ -166,7 +167,7 @@ namespace ScreenTask
                             break;
                         default: break;
                     }
-                    
+
                 }
 
                 var resPath = ctx.Request.Url.LocalPath;
@@ -574,7 +575,7 @@ namespace ScreenTask
         {
             int StartXp = Req.IndexOf("xp=") + 3;
             int StartYp = Req.IndexOf("yp=") + 3;
-            if(StartXp < 3 || StartYp < 3 || StartXp >= Req.Length || StartYp >= Req.Length)
+            if (StartXp < 3 || StartYp < 3 || StartXp >= Req.Length || StartYp >= Req.Length)
             {
                 Log("Click coordinates parse error!");
                 return false;
@@ -585,13 +586,13 @@ namespace ScreenTask
             int LenXp = EndXp > StartXp ? EndXp - StartXp : Req.Length - StartXp;
             int LenYp = EndYp > StartYp ? EndYp - StartYp : Req.Length - StartYp;
 
-            if(LenXp <= 0 || LenYp <= 0)
+            if (LenXp <= 0 || LenYp <= 0)
             {
                 Log("Click coordinates parse error!");
                 return false;
             }
 
-            float Xp = float.Parse(Req.Substring(StartXp, LenXp).Replace('.',','));
+            float Xp = float.Parse(Req.Substring(StartXp, LenXp).Replace('.', ','));
             float Yp = float.Parse(Req.Substring(StartYp, LenYp).Replace('.', ','));
 
 
@@ -622,11 +623,12 @@ namespace ScreenTask
         //TDOD: make protection against eternal key pressed
         private void WinKey(string res)
         {
-            var QueryParams = QueryParamsToString(res);
-            switch(QueryParams["KeyEventType"])
+            var KeyQueryParams = QueryParamsToString(res);
+            switch (KeyQueryParams["KeyEventType"])
             {
                 case "keypress":
-                    //...
+                    //Function creates and sends InputArray From Dict Key Query Params
+                    InputDictKeyQueryParams(KeyQueryParams);
                     break;
                 case "keyup":
                     //...
@@ -645,13 +647,77 @@ namespace ScreenTask
                 if (parts.Length > 0)
                 {
                     string key = parts[0].Trim(new char[] { '?', ' ' });
-                    string val = parts[1].Trim();
+                    string val = parts.Length == 2 ? parts[1].Trim() : "";
 
                     queryParameters.Add(key, val);
                 }
             }
             return queryParameters;
         }
+
+        //Function creates and sends InputArray From Dict Key Query Params
+        private void InputDictKeyQueryParams(Dictionary<string, string> KeyQueryParams)
+        {
+            List<KeyboardInput> KbInputList = new List<KeyboardInput>();
+            if (KeyQueryParams["key"].Length != 1) return;
+            char KeyChar = KeyQueryParams["key"].ToLower()[0];
+            ushort KeyCode = ConvertCharToVirtualKey(KeyChar);
+            KbInputList.Add(new KeyboardInput
+            {
+                wScan = KeyCode,
+                dwFlags = (uint)(KeyEventF.KeyDown | KeyEventF.Unicode),
+                dwExtraInfo = GetMessageExtraInfo()
+            });
+
+            if(KeyQueryParams.ContainsKey("shiftKey"))
+            {
+                KbInputList.Add(new KeyboardInput
+                {
+                    wVk = 0x10,
+                    dwFlags = (uint)(KeyEventF.KeyDown),
+                    dwExtraInfo = GetMessageExtraInfo()
+                });
+            }
+            if (KeyQueryParams.ContainsKey("ctrlKey"))
+            {
+                KbInputList.Add(new KeyboardInput
+                {
+                    wVk = 0x11,
+                    dwFlags = (uint)(KeyEventF.KeyDown),
+                    dwExtraInfo = GetMessageExtraInfo()
+                });
+            }
+            if (KeyQueryParams.ContainsKey("altKey"))
+            {
+                KbInputList.Add(new KeyboardInput
+                {
+                    wVk = 0x12,
+                    dwFlags = (uint)(KeyEventF.KeyDown),
+                    dwExtraInfo = GetMessageExtraInfo()
+                });
+            }
+
+            //KeyUps
+            KeyboardInput[] KbInputListArr = new KeyboardInput[KbInputList.Count];
+            KbInputList.CopyTo(KbInputListArr);
+            foreach (KeyboardInput KbInput in KbInputListArr)
+            {
+                KeyboardInput NewKbInput = KbInput;
+                if(KbInput.wVk > 0)
+                {
+                    NewKbInput.dwFlags = (uint)(KeyEventF.KeyUp);
+                }
+                else
+                {
+                    NewKbInput.dwFlags = (uint)(KeyEventF.KeyUp | KeyEventF.Unicode);
+                }
+                KbInputList.Add(NewKbInput);
+            }
+
+            SendKeyboardInput(KbInputList.ToArray());
+        }
+        
+        
 
     }
 }
